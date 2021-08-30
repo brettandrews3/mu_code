@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
 	# ex: /polls/
 	path('', views.index, name='index'),
-	# ex: /polls/5/
+	# Here's the 'name' value that's called by {% url %} template tag in index.html:
 	path('<int:question_id>/', views.detail, name='detail'),
 	# ex: /polls/5/results/
 	path('<int:question_id>/results/', views.results, name='results'),
