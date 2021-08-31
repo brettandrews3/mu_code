@@ -1,25 +1,26 @@
 from django.shortcuts import render
-#from django.http import HttpResponse      (Now handled by importing get_object_or_404)
-#from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views import generic
 from .models import Question
 from .models import Choice
 
-def index(request):
-	latest_question_list = Question.objects.order_by('-pub_date')[:5]
-	context = {'latest_question_list': latest_question_list}
-	return render(request, 'polls/index.html', context)
+class IndexView(generic.ListView):
+	template_name = 'polls/index.html'
+	context_object_name = 'latest_question_list'
 
-# This detail() uses get_object_or_404() to maintain loose coupling,
-# whereas using the detail() shown below ties the model layer to the view layer.
-def detail(request, question_id):
-	question = get_object_or_404(Question, pk=question_id)
-	return render(request, 'polls/detail.html', {'question': question})
+	def get_queryset(self):
+		# Returns the last five published questions:
+		return Question.objects.order_by('-pub_date')[:5]
 
-def results(request, question_id):
-	response = "You're looking at the results of question %s."
-	return HttpResponse(response % question_id)
+class DetailView(generic.DetailView):
+	model = Question
+	template_name = 'polls/detail.html'
+
+class ResultsView(generic.DetailView):
+	model = Question
+	template_name = 'polls/results.html'
 
 def vote(request, question_id):
 	question = get_object_or_404(Question, pk=question_id)
@@ -39,13 +40,34 @@ def vote(request, question_id):
 		# time if the user hits the Back button on their browser.
 		return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
-# This is the long-form def detail(). The production one above uses shortcuts.
+# Here's the original views for index, detail, and results.
+# The views used above employe Django's generic views for simplicity's sake.
+def index(request):
+	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+	context = {'latest_question_list': latest_question_list}
+	return render(request, 'polls/index.html', context)
+
+# This detail() uses get_object_or_404() to maintain loose coupling,
+# whereas using the detail() shown below ties the model layer to the view layer.
 def detail(request, question_id):
-	try:
-		question = Question.objects.get(pk=question_id)
-	except Question.DoesNotExist:
-		raise Http404("This question doesn't exist.")
+	question = get_object_or_404(Question, pk=question_id)
 	return render(request, 'polls/detail.html', {'question': question})
-	#return HttpResponse("You're looking at question %s." % question_id)
+
+def results(request, question_id):
+	question = get_object_or_404(Question, pk=question_id)
+	return render(request, 'polls/results.html', {'question': question})
 """
