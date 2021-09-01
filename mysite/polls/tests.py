@@ -1,6 +1,7 @@
-from django.test import TestCase
 import datetime
 from django.test import TestCase
+from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from .models import Question
 
@@ -32,3 +33,33 @@ class QuestionModelTests(TestCase):
 		time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
 		recent_question = Question(pub_date=time)
 		self.assertIs(recent_question.was_published_recently(), True)
+
+# Here, we'll add some tests for questions outside of this 24 hour period:
+
+def create_question(question_text, days):
+	"""
+	Create a question with the given 'question_text' and publish the given
+	number of 'days' offset to now (negative for questions in the past, positive 
+	for questions that haven't been published yet).
+	"""
+	time = timezone.now() + datetime.timedelta(days=days)
+	return Question.objects.create(question_text=question.text, pub_date=time)
+
+class QuestionIndexViewTests(TestCase):
+	def test_no_questions(self):
+		# No questions exist? Display the appropriate message:
+		response = self.client.get(reverse('polls:index'))
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "No polls are available.")
+		self.assertQuerysetEqual(response.context['latest_question_list'], [])
+
+	def test_past_question(self):
+		# Quesions with a pub_date in the past show up on the index page:
+		question = create_question(question_text="Past question,", days=-30)
+		response = self.client.get(reverse('polls:index'))
+		self.assertQuerysetEqual(
+			response.context['latest_question_list'],
+			[question],
+		)
+
+	def test_future_question(self):
