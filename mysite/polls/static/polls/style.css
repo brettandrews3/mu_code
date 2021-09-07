@@ -1,0 +1,4 @@
+/* This sets the Question links to green on [mysite]/polls. */
+li a {
+	color: green;
+}
