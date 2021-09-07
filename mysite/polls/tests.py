@@ -63,3 +63,28 @@ class QuestionIndexViewTests(TestCase):
 		)
 
 	def test_future_question(self):
+		# Questions with future pub_date aren't shown on the index page.
+		create_question(question_text="Future question.", days=30)
+		response = self.client.get(reverse('polls:index'))
+		self.assertContains(response, "No polls are available.")
+		self.assertQuerysetEqual(response.context['latest_question_list'], [])
+
+	def test_future_question_and_past_question(self):
+		# Only show past questions, even if future questions exist, too.
+		question = create_question(question_text="Past question.", days=-30)
+		create_question(question_text = "Future question.", days=30)
+		response = self.client.get(reverse('polls:index'))
+		self.assertQuerysetEqual(
+			response.context['latest_question_list'],
+			[question],
+		)
+
+	def test_two_past_questions(self):
+		# Questions index page may display multiple entries.
+		question1 = create_question(question_text="Past question 1.", days=-30)
+		question2 = create_question(question_text="Past question 2.", days=-5)
+		response = self.client.get(reverse('polls:index'))
+		self.assertQuerysetEqual(
+			response.context['latest_question_list'],
+			[question2, question1],
+		)
