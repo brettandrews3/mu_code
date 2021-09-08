@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">All about that bass</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+<!--
+	Okay, I cannot figure out how to update the admin site header name.
+	I've replaced {{ site_header ... }} with a custom name, but it doesn't
+	change on the demo site I'm working on. 
+
+	**I need to find out where this HTML file is supposed to be read from and update that segment, too.**
+	9/8/2021
+-->
