@@ -18,7 +18,7 @@ class QuestionAdmin(admin.ModelAdmin):
 	# Choice objects are edited on Question page
 	list_display = ('question_text', 'pub_date', 'was_published_recently')
 	list_filter = ['pub_date']
-	search_fields = ['question_text']
+	search_fields = ['question_text']list_filter
 
 admin.site.register(Question, QuestionAdmin) 
 admin.site.register(Choice)
